@@ -6,11 +6,12 @@
 
 # 使用
 
-1. 安装workflow后，在Alfred找到工作流右键通过文件夹打开
+1. 下载仓库，双击安装worktree.alfredworkflow
+2. 打开Alfred找到工作流右键通过文件夹打开
 	![](./images/Pasted%20image%2020251107140731.png)
-2. 打开dist路径下的**worktree.config.js**文件配置管理的项目信息
+3. 打开dist路径下的**worktree.config.js**文件配置管理的项目信息
 	![](./images/Pasted%20image%2020251107143129.png)
-3. 配置字段方式如下：
+4. 配置字段方式如下：
 	```js
 	export default {
 		projects: [
