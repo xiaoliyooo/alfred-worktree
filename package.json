@@ -1,0 +1,20 @@
+{
+  "name": "worktree-manager",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "path.js",
+  "scripts": {
+    "dev": "tsc -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "alfy": "^3.0.0",
+    "find-process": "^1.4.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0"
+  }
+}
