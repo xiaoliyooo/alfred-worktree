@@ -15,11 +15,11 @@
 
 1. `ss` 管理开发服务
 
-   ![](./images/example1.png)
+![](./images/example1.png)
 
 2. `sc` 打开配置文件
 
-   ![](./images/example2.png)
+![](./images/example2.png)
 
 # 使用
 
@@ -27,70 +27,162 @@
 2. 通过**Alfred**搜索框输入关键字**ss**调用，首次使用会在 `~/alfred-worktree/worktree.config.js` 中初始化配置
 3. 选择**Stop All**会暂停全部前端服务，选择一个服务会停止其他**端口互斥**的服务并**重启**选择的服务
 4. 按住 `Ctrl` 选择服务只关闭不重启
-5. 以下为目前全部支持字段：
 
-   ```js
-   export default {
-     projects: [
-       {
-         name: "Monorepo Project Sub-Package1", // 假设这是一个monorepo项目的一个子包
-         root: "/a/b/c", // 配置项目 git 根路径
-         cmd: "pnpm run https:test", // 根据你的需要改成启动你的项目的命令
-         port: "443", // 你的项目启动端口号
-         cmdPath(worktreeRoot) {
-           // 参数为git工作树根路径, 无工作树则项目根路径(默认主工作树)
-           // 如果是monorepo项目可能会进入子包执行具体子包的命令，需要返回子包package.json路径
-           // 非monorepo不需要配置 cmdPath 字段或者直接返回 worktreeRoot
-           return `${worktreeRoot}/packages/sub1`;
-         },
-       },
-       {
-         name: "Monorepo Project Sub-Package2", // 和上一条配置同属一个git，但是不同子包
-         root: "/a/b/c",
-         cmd: "pnpm run https:test",
-         port: "443",
-         cmdPath(worktreeRoot) {
-           return `${worktreeRoot}/packages/sub2`;
-         },
-       },
-       {
-         name: "Project2", // 非monorepo项目
-         root: "/x/y/z",
-         cmd: "pnpm run dev",
-         port: "5173",
-       },
-     ],
-     style: {
-       titleFormatter(project, worktree) {
-         const { isRunning } = worktree;
-         return `${isRunning ? `🟢` : ""}[${project.name}] -> ${project.cmd}`;
-       },
-       subTitleFormatter(project, worktree) {
-         const { branch } = worktree;
-         return `工作树正在运行 [${branch}] 分支`;
-       },
-     },
-   };
-   ```
+# 配置说明
 
-6. Project和Worktree类型：
+## 配置文件结构
 
-   ```ts
-   export interface Project {
-     name: string;
-     root: string;
-     cmd: string;
-     port: string;
-     cmdPath?: (rootPath: string) => string;
-   }
+配置文件位于 `~/alfred-worktree/worktree.config.js`，采用 ES Module 格式。
 
-   export type Worktree = {
-     root: string;
-     HEAD: string;
-     branch: string;
-     isRunning: boolean;
-   };
-   ```
+### 基本配置示例
+
+```js
+export default {
+  projects: [
+    {
+      name: "Monorepo Project Sub-Package1",
+      root: "/a/b/c",
+      cmd: "pnpm run https:test",
+      port: "443",
+      cmdPath(worktreeRoot) {
+        return `${worktreeRoot}/packages/sub1`;
+      },
+    },
+    {
+      name: "Project2",
+      root: "/x/y/z",
+      cmd: "pnpm run dev",
+      port: "5173",
+    },
+  ],
+  style: {
+    titleFormatter(project, worktree) {
+      const { isRunning } = worktree;
+      return `${isRunning ? `🟢` : ""}[${project.name}] -> ${project.cmd}`;
+    },
+    subTitleFormatter(project, worktree) {
+      const { branch } = worktree;
+      return `工作树正在运行 [${branch}] 分支`;
+    },
+  },
+};
+```
+
+## 配置参数详解
+
+### Project 配置
+
+每个项目配置对象包含以下字段：
+
+| 参数      | 类型       | 必填 | 说明                                                       |
+| --------- | ---------- | ---- | ---------------------------------------------------------- |
+| `name`    | `string`   | ✅   | 项目显示名称，用于在 Alfred 界面中标识项目                 |
+| `root`    | `string`   | ✅   | Git主工作树路径，（没创建工作树等于项目Git路径），绝对路径 |
+| `cmd`     | `string`   | ✅   | 启动项目的命令，如 `pnpm run dev`、`npm start` 等          |
+| `port`    | `string`   | ✅   | 项目启动的端口号，用于端口互斥管理                         |
+| `cmdPath` | `function` | ❌   | 可选函数，用于指定命令执行路径，主要用于 Monorepo 项目     |
+
+#### cmdPath 函数详解
+
+```ts
+cmdPath?: (worktreeRoot: string) => string
+```
+
+- **参数**: `worktreeRoot` - Git 工作树根路径，如果没有工作树则为项目根路径
+- **返回值**: 命令执行的具体路径
+- **使用场景**:
+  - Monorepo 项目需要进入子包目录执行命令
+  - 非 Monorepo 项目可以不配置此字段或直接返回 `worktreeRoot`
+
+### Style 配置
+
+用于自定义 Alfred 菜单界面显示样式：
+
+| 参数                | 类型       | 必填 | 说明                 |
+| ------------------- | ---------- | ---- | -------------------- |
+| `titleFormatter`    | `function` | ❌   | 自定义标题显示格式   |
+| `subTitleFormatter` | `function` | ❌   | 自定义副标题显示格式 |
+
+#### 格式化函数详解
+
+```ts
+titleFormatter?: (project: Project, worktree: Worktree) => string
+subTitleFormatter?: (project: Project, worktree: Worktree) => string
+```
+
+- **参数**:
+  - `project` - 当前项目配置对象
+  - `worktree` - 当前工作树信息对象
+- **返回值**: 格式化后的显示文本
+
+## 类型定义
+
+### Project 接口
+
+```ts
+export interface Project {
+  name: string; // 项目名称
+  root: string; // Git主工作树路径，（没创建工作树等于项目Git路径），绝对路径
+  cmd: string; // 启动命令
+  port: string; // 端口号
+  cmdPath?: (rootPath: string) => string; // 可选的命令执行路径函数
+}
+```
+
+### Worktree 类型
+
+```ts
+export type Worktree = {
+  root: string; // 工作树根路径
+  HEAD: string; // git HEAD hash值
+  branch: string; // 当前分支名
+  isRunning: boolean; // 是否正在运行
+};
+```
+
+## 配置示例
+
+### Monorepo 项目配置
+
+```js
+{
+  name: "Frontend Monorepo - Admin",
+  root: "/Users/username/projects/my-monorepo",
+  cmd: "pnpm run dev",
+  port: "3000",
+  cmdPath(worktreeRoot) {
+    // 进入 admin 子包目录执行
+    return `${worktreeRoot}/packages/admin`;
+  },
+}
+```
+
+### 普通项目配置
+
+```js
+{
+  name: "My Vue Project",
+  root: "/Users/username/projects/vue-app",
+  cmd: "npm run serve",
+  port: "8080",
+  // 普通项目无需配置 cmdPath
+}
+```
+
+### 自定义样式配置
+
+```js
+style: {
+    titleFormatter(project, worktree) {
+      const { isRunning } = worktree;
+      return `${isRunning ? `🟢` : ""}[${project.name}] -> ${project.cmd}`;
+    },
+    subTitleFormatter(project, worktree) {
+      const { branch } = worktree;
+      return `工作树正在运行 [${branch}] 分支`;
+    },
+}
+```
 
 # 注意
 
