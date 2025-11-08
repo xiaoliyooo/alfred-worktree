@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "path.js",
   "scripts": {
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "build": "tsc -b --force"
   },
   "keywords": [],
   "author": "",

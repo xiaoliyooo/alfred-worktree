@@ -1,41 +1,28 @@
-import { getAllProjectsWithWorkTree, isRunningServerInPath, noop } from './utils.js';
-import { exec as _exec } from 'child_process';
-import util from 'util';
-import { Project, Stat } from './types.js';
+import {
+  getAllProjectsWithWorkTree,
+  getSelectedWorkspaceAndProject,
+  killProcessOnPort,
+} from './utils.js';
 
-const exec = util.promisify(_exec);
+import { Args } from './types.js';
+import { exec as _exec } from 'child_process';
+
+const args = process.argv.slice(2);
+const arg: Args | null = args.length ? JSON.parse(args[0]) : null;
 
 export const stop = async () => {
+  return arg ? stopSelected(arg) : stopAll();
+};
+
+const stopSelected = async (arg: Args) => {
+  const selected = (await getSelectedWorkspaceAndProject(arg))!;
+  const { project } = selected;
+  return killProcessOnPort(project.port);
+};
+
+const stopAll = async () => {
   const allWorkTree = await getAllProjectsWithWorkTree();
-  const projectWithStatsPromise = allWorkTree
-    .map(project => {
-      const { worktree, cmdPath = noop, checkRunningPath = noop } = project;
-      return worktree.map(workspace => {
-        const { root } = workspace;
-        return new Promise<{
-          project: Project;
-          stats: Stat[];
-        }>(async resolve => {
-          const stats = await isRunningServerInPath(checkRunningPath(root));
-          resolve({
-            project,
-            stats,
-          });
-        });
-      });
-    })
-    .flat();
-
-  const projectWithStats = await Promise.all(projectWithStatsPromise);
-
-  for (let i = 0; i < projectWithStats.length; i++) {
-    const { stats, project } = projectWithStats[i];
-    const runningStat = stats.find(stat => project.isProjectProcess(stat));
-    if (runningStat) {
-      const { pid } = runningStat;
-      await exec(`kill -9 ${pid}`);
-    }
-  }
+  return Promise.all(allWorkTree.map(project => killProcessOnPort(project.port)));
 };
 
 await stop();

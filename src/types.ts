@@ -2,13 +2,12 @@ export interface Project {
   name: string;
   root: string;
   cmd: string;
+  port: string;
   cmdPath?: (rootPath: string) => string;
-  checkRunningPath?: (rootPath: string) => string;
-  isProjectProcess: (stat: Stat) => boolean;
 }
 
 export interface Config {
-  projects: Project[];
+  projects?: Project[];
 }
 
 export interface Args {
