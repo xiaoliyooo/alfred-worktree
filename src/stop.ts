@@ -1,6 +1,6 @@
 import {
-  getAllProjectsWithWorkTree,
-  getSelectedWorkspaceAndProject,
+  getCombinedContextList,
+  getSelectedWorktreeAndProject,
   killProcessOnPort,
 } from './utils.js';
 
@@ -15,14 +15,14 @@ export const stop = async () => {
 };
 
 const stopSelected = async (arg: Args) => {
-  const selected = (await getSelectedWorkspaceAndProject(arg))!;
+  const selected = (await getSelectedWorktreeAndProject(arg))!;
   const { project } = selected;
   return killProcessOnPort(project.port);
 };
 
 const stopAll = async () => {
-  const allWorkTree = await getAllProjectsWithWorkTree();
-  return Promise.all(allWorkTree.map(project => killProcessOnPort(project.port)));
+  const ctxList = await getCombinedContextList();
+  return Promise.all(ctxList.map(ctx => killProcessOnPort(ctx.project.port)));
 };
 
 await stop();

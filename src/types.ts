@@ -14,8 +14,14 @@ export type Worktree = {
 };
 
 export type Style = {
-  titleFormatter?: (project: Project, workspace: Worktree) => string;
-  subTitleFormatter?: (project: Project, workspace: Worktree) => string;
+  titleFormatter?: (project: Project, worktree: Worktree) => string;
+  subTitleFormatter?: (project: Project, worktree: Worktree) => string;
+};
+
+export type CombinedCtx = {
+  project: Project;
+  worktrees: Worktree[];
+  style: Style;
 };
 
 export interface Config {

@@ -1,5 +1,5 @@
 import alfy, { ScriptFilterItem } from 'alfy';
-import { noop, getAllProjectsWithWorkTree } from './utils.js';
+import { noop, getCombinedContextList } from './utils.js';
 import {
   titleFormatter as defaultTitleFormatter,
   subTitleFormatter as defaultSubTitleFormatter,
@@ -8,18 +8,19 @@ import { exec as _exec } from 'child_process';
 
 async function display() {
   const alfredList: ScriptFilterItem[] = [];
-  const allProjectsWithWorkTree = await getAllProjectsWithWorkTree();
+  const ctxList = await getCombinedContextList();
 
-  allProjectsWithWorkTree.forEach(project => {
-    const { worktree, cmdPath = noop, style } = project;
+  ctxList.forEach(ctx => {
+    const { project, worktrees, style } = ctx;
+    const { cmdPath = noop } = project;
     const { titleFormatter = defaultTitleFormatter, subTitleFormatter = defaultSubTitleFormatter } =
       style;
 
-    worktree.forEach(workspace => {
-      const { isRunning, branch, root } = workspace;
+    worktrees.forEach(worktree => {
+      const { isRunning, branch, root } = worktree;
       alfredList.push({
-        title: titleFormatter(project, workspace),
-        subtitle: subTitleFormatter(project, workspace),
+        title: titleFormatter(project, worktree),
+        subtitle: subTitleFormatter(project, worktree),
         arg: JSON.stringify({
           branch,
           root,

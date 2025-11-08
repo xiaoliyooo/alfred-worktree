@@ -61,12 +61,12 @@
        },
      ],
      style: {
-       titleFormatter(project, workspace) {
-         const { isRunning } = workspace;
+       titleFormatter(project, worktree) {
+         const { isRunning } = worktree;
          return `${isRunning ? `🟢` : ""}[${project.name}] -> ${project.cmd}`;
        },
-       subTitleFormatter(project, workspace) {
-         const { branch } = workspace;
+       subTitleFormatter(project, worktree) {
+         const { branch } = worktree;
          return `工作树正在运行 [${branch}] 分支`;
        },
      },

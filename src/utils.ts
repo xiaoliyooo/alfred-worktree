@@ -1,6 +1,6 @@
 import { exec as _exec } from 'child_process';
 import util from 'util';
-import { Args, Config, Project, Style, Worktree } from './types.js';
+import { Args, CombinedCtx, Project, Style, Worktree } from './types.js';
 import find from 'find-process';
 import fs from 'fs';
 import path from 'path';
@@ -120,15 +120,15 @@ export async function parseWorktreePorcelain(output: string, project: Project) {
   return result;
 }
 
-export const getAllProjectsWithWorkTree = async () => {
+export const getCombinedContextList = async () => {
   const currentProjectConfig = await getConfig();
   const allProjectsWithWorkTree = (currentProjectConfig.projects || []).map(async project => {
-    return new Promise<Project & { worktree: Worktree[]; style: Style }>(async resolve => {
+    return new Promise<CombinedCtx>(async resolve => {
       const gitOutput = (await exec(`cd ${project.root} && git worktree list --porcelain`)).stdout;
-      const worktree = await parseWorktreePorcelain(gitOutput, project);
+      const worktrees = await parseWorktreePorcelain(gitOutput, project);
       resolve({
-        ...project,
-        worktree,
+        project,
+        worktrees,
         style: currentProjectConfig.style || {},
       });
     });
@@ -181,15 +181,15 @@ export const findBuildTool = (
   }
 };
 
-export const getSelectedWorkspaceAndProject = async (arg: Args) => {
+export const getSelectedWorktreeAndProject = async (arg: Args) => {
   const { root } = arg;
-  const allProjectsWithWorkTree = await getAllProjectsWithWorkTree();
-  const project = allProjectsWithWorkTree.find(project => project.name === arg.name);
-  if (!project) return null;
+  const ctxList = await getCombinedContextList();
+  const ctx = ctxList.find(ctx => ctx.project.name === arg.name);
+  if (!ctx) return null;
 
-  const workspace = project.worktree.find(workspace => workspace.root === root);
+  const worktree = ctx.worktrees.find(worktree => worktree.root === root);
   return {
-    project,
-    workspace,
+    project: ctx.project,
+    worktree,
   };
 };
