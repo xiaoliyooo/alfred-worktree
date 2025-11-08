@@ -1,8 +1,4 @@
-import {
-  getAllProjectsWithWorkTree,
-  getSelectedWorkspaceAndProject,
-  killProcessOnPort,
-} from './utils.js';
+import { getSelectedWorkspaceAndProject, killProcessOnPort } from './utils.js';
 import { exec as _exec } from 'child_process';
 import util from 'util';
 import { Args } from './types.js';

@@ -4,33 +4,9 @@ import { Args, Config, Project } from './types.js';
 import find from 'find-process';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
-import { createDefaultConfig, createDefaultConfigStr } from './constant.js';
+import { getConfig } from './config.js';
 
 const exec = util.promisify(_exec);
-
-const getConfig = async (): Promise<Config> => {
-  try {
-    const configDir = path.join(os.homedir(), 'alfred-worktree');
-    const configPath = path.join(configDir, 'worktree.config.js');
-
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir, { recursive: true });
-    }
-
-    if (!fs.existsSync(configPath)) {
-      const defaultConfig = createDefaultConfigStr();
-      fs.writeFileSync(configPath, defaultConfig, 'utf-8');
-    }
-
-    const configModule = await import(configPath);
-    const config = configModule.default as Config;
-    return config || createDefaultConfig();
-  } catch (error) {
-    console.error('Failed to load configuration:', error);
-    return createDefaultConfig();
-  }
-};
 
 export const isRunningServerInPath = async (path: string) => {
   return find('name', path);
