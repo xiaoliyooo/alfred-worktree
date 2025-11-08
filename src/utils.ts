@@ -173,7 +173,7 @@ export const getAllProjectsWithWorkTree = async () => {
 export const findBuildTool = (
   packagePath: string
 ): {
-  tool: 'vite' | 'webpack' | null;
+  tool: 'vite' | null;
   version?: string;
   devDependency?: boolean;
 } | null => {
@@ -198,22 +198,6 @@ export const findBuildTool = (
       return {
         tool: 'vite',
         version: devDependencies.vite,
-        devDependency: true,
-      };
-    }
-
-    if (dependencies.webpack) {
-      return {
-        tool: 'webpack',
-        version: dependencies.webpack,
-        devDependency: false,
-      };
-    }
-
-    if (devDependencies.webpack) {
-      return {
-        tool: 'webpack',
-        version: devDependencies.webpack,
         devDependency: true,
       };
     }
