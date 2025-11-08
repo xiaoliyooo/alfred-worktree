@@ -14,7 +14,7 @@
 
 # 使用
 
-1. 下载仓库，双击安装worktree.alfredworkflow
+1. 下载仓库，双击安装**worktree.alfredworkflow**
 2. 通过**Alfred**搜索框输入关键字**ss**调用，首次使用会在 `~/alfred-worktree/worktree.config.js` 中初始化配置
 3. 选择**Stop All**会暂停全部前端服务，选择一个服务会停止其他**端口互斥**的服务并**重启**选择的服务
 4. 按住 `Ctrl` 选择服务只关闭不重启
