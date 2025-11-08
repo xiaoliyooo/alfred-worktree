@@ -9,10 +9,12 @@
 
 # 示例
 1. `ss` 管理开发服务
-![](./images/example1.png)
+
+	![](./images/example1.png)
 
 2. `sc` 打开配置文件
-![](./images/example2.png)
+
+	![](./images/example2.png)
 
 # 使用
 
