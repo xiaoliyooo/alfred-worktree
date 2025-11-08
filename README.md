@@ -2,7 +2,6 @@
 
 **git worktree**是git的高级功能，实际开发时如果需要不断切换分支，比起不断 `stash` 代码，更好的是为不同分支迁出不同工作树（worktree），不同分支（工作树）之间服务切换是个麻烦的问题，通过编写工作流可以自动化这个行为，同时也可以管理不同项目的服务状态。
 
-
 # 功能
 
 1. 此工作流用于快速管理多个前端项目服务，我自己每天工作都在使用它管理多个**git工作树**，减少重复劳动
@@ -13,13 +12,14 @@
 6. 可配置化
 
 # 示例
+
 1. `ss` 管理开发服务
 
-	![](./images/example1.png)
+   ![](./images/example1.png)
 
 2. `sc` 打开配置文件
 
-	![](./images/example2.png)
+   ![](./images/example2.png)
 
 # 使用
 
@@ -60,10 +60,40 @@
          port: "5173",
        },
      ],
+     style: {
+       titleFormatter(project, workspace) {
+         const { isRunning } = workspace;
+         return `${isRunning ? `🟢` : ""}[${project.name}] -> ${project.cmd}`;
+       },
+       subTitleFormatter(project, workspace) {
+         const { branch } = workspace;
+         return `工作树正在运行 [${branch}] 分支`;
+       },
+     },
+   };
+   ```
+
+6. Project和Worktree类型：
+
+   ```ts
+   export interface Project {
+     name: string;
+     root: string;
+     cmd: string;
+     port: string;
+     cmdPath?: (rootPath: string) => string;
+   }
+
+   export type Worktree = {
+     root: string;
+     HEAD: string;
+     branch: string;
+     isRunning: boolean;
    };
    ```
 
 # 注意
+
 1. 对于**Monorepo**项目，如果子包和根路径**共享**构建工具npm依赖，目前只适配了**Vite**项目，**非Monorepo**无所谓
 2. 电脑Node版本支持原生**ESM**语法（拥抱未来趋势）
 

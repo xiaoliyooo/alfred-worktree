@@ -6,8 +6,21 @@ export interface Project {
   cmdPath?: (rootPath: string) => string;
 }
 
+export type Worktree = {
+  root: string;
+  HEAD: string;
+  branch: string;
+  isRunning: boolean;
+};
+
+export type Style = {
+  titleFormatter?: (project: Project, workspace: Worktree) => string;
+  subTitleFormatter?: (project: Project, workspace: Worktree) => string;
+};
+
 export interface Config {
   projects?: Project[];
+  style?: Style;
 }
 
 export interface Args {

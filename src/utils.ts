@@ -1,6 +1,6 @@
 import { exec as _exec } from 'child_process';
 import util from 'util';
-import { Args, Config, Project } from './types.js';
+import { Args, Config, Project, Style, Worktree } from './types.js';
 import find from 'find-process';
 import fs from 'fs';
 import path from 'path';
@@ -83,13 +83,6 @@ export const killProcessOnPort = async (port: string) => {
 
 export const noop = (path: string) => path;
 
-export type Worktree = {
-  root: string;
-  HEAD: string;
-  branch: string;
-  isRunning: boolean;
-};
-
 export async function parseWorktreePorcelain(output: string, project: Project) {
   const blocks = output.trim().split(/\n\s*\n/);
   const result: Worktree[] = [];
@@ -130,12 +123,13 @@ export async function parseWorktreePorcelain(output: string, project: Project) {
 export const getAllProjectsWithWorkTree = async () => {
   const currentProjectConfig = await getConfig();
   const allProjectsWithWorkTree = (currentProjectConfig.projects || []).map(async project => {
-    return new Promise<Project & { worktree: Worktree[] }>(async resolve => {
+    return new Promise<Project & { worktree: Worktree[]; style: Style }>(async resolve => {
       const gitOutput = (await exec(`cd ${project.root} && git worktree list --porcelain`)).stdout;
       const worktree = await parseWorktreePorcelain(gitOutput, project);
       resolve({
         ...project,
         worktree,
+        style: currentProjectConfig.style || {},
       });
     });
   });

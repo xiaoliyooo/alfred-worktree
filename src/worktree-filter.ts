@@ -1,5 +1,9 @@
 import alfy, { ScriptFilterItem } from 'alfy';
 import { noop, getAllProjectsWithWorkTree } from './utils.js';
+import {
+  titleFormatter as defaultTitleFormatter,
+  subTitleFormatter as defaultSubTitleFormatter,
+} from './formatter.js';
 import { exec as _exec } from 'child_process';
 
 async function display() {
@@ -7,13 +11,15 @@ async function display() {
   const allProjectsWithWorkTree = await getAllProjectsWithWorkTree();
 
   allProjectsWithWorkTree.forEach(project => {
-    const { worktree, cmdPath = noop } = project;
+    const { worktree, cmdPath = noop, style } = project;
+    const { titleFormatter = defaultTitleFormatter, subTitleFormatter = defaultSubTitleFormatter } =
+      style;
 
     worktree.forEach(workspace => {
       const { isRunning, branch, root } = workspace;
       alfredList.push({
-        title: `${isRunning ? `✅` : '     '}${project.name}:  ${branch} -> ${project.cmd}`,
-        subtitle: `基于 ${branch} 分支创建的工作树`,
+        title: titleFormatter(project, workspace),
+        subtitle: subTitleFormatter(project, workspace),
         arg: JSON.stringify({
           branch,
           root,
