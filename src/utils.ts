@@ -1,6 +1,6 @@
 import { exec as _exec } from 'child_process';
 import util from 'util';
-import { Args, CombinedCtx, Project, Style, Worktree } from './types.js';
+import { Args, CombinedCtx, Project, Stat, Worktree } from './types.js';
 import find from 'find-process';
 import fs from 'fs';
 import path from 'path';
@@ -8,27 +8,8 @@ import { getConfig } from './config.js';
 
 const exec = util.promisify(_exec);
 
-export const isRunningServerInPath = async (path: string) => {
-  return find('name', path);
-};
-
-export const isRunningServerOnPort = async (port: string) => {
+export const findStatsOnPort = async (port: string) => {
   return find('port', port);
-};
-
-// 通用的项目进程检测函数
-export const isProjectRunningOnPort = async (
-  project: Project,
-  port: string,
-  worktreeRoot: string
-) => {
-  try {
-    const processes = await find('port', port);
-    return !!processes.find(process => isProjectProcess(project, process, worktreeRoot));
-  } catch (error) {
-    console.error(`Failed to check if project is running on port ${port}:`, error);
-    return false;
-  }
 };
 
 export const isProjectProcess = (project: Project, stat: any, worktreeRoot: string): boolean => {
@@ -86,7 +67,7 @@ export const noop = (path: string) => path;
 export async function parseWorktreePorcelain(
   output: string,
   project: Project,
-  portCache: Record<string, boolean>
+  portStatsMap: Record<string, Stat[]>
 ) {
   const blocks = output.trim().split(/\n\s*\n/);
   const result: Worktree[] = [];
@@ -116,26 +97,37 @@ export async function parseWorktreePorcelain(
       }
     });
 
-    if (typeof portCache[project.port] === 'undefined') {
-      worktree.isRunning = await isProjectRunningOnPort(project, project.port, worktree.root);
-      portCache[project.port] = worktree.isRunning;
-    } else {
-      worktree.isRunning = portCache[project.port];
-    }
-
+    const stats = portStatsMap[project.port]!;
+    worktree.isRunning = !!stats.find(process => isProjectProcess(project, process, worktree.root));
     result.push(worktree);
   }
 
   return result;
 }
 
+const collectPortProcess = async (projects: Project[], portStatsMap: Record<string, Stat[]>) => {
+  const portsSet = new Set(projects.map(project => project.port));
+  return Promise.all(
+    Array.from(portsSet).map(port => {
+      return new Promise(async resolve => {
+        const stats = await findStatsOnPort(port);
+        portStatsMap[port] = stats;
+        resolve(true);
+      });
+    })
+  );
+};
+
 export const getCombinedContextList = async () => {
   const config = await getConfig();
-  const portCache: Record<string, boolean> = {};
-  const allProjectsWithWorkTree = (config.projects || []).map(async project => {
+  const projects = config.projects || [];
+  const portStatsMap: Record<string, Stat[]> = {};
+  await collectPortProcess(projects, portStatsMap);
+
+  const allProjectsWithWorkTree = projects.map(async project => {
     return new Promise<CombinedCtx>(async resolve => {
       const gitOutput = (await exec(`cd ${project.root} && git worktree list --porcelain`)).stdout;
-      const worktrees = await parseWorktreePorcelain(gitOutput, project, portCache);
+      const worktrees = await parseWorktreePorcelain(gitOutput, project, portStatsMap);
       resolve({
         project,
         worktrees,
