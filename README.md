@@ -65,6 +65,7 @@ export default {
       return `工作树正在运行 [${branch}] 分支`;
     },
   },
+  opener: "", // '' | 'vscode' | 'code'
 };
 ```
 
@@ -114,6 +115,12 @@ subTitleFormatter?: (project: Project, worktree: Worktree) => string
   - `project` - 当前项目配置对象
   - `worktree` - 当前工作树信息对象
 - **返回值**: 格式化后的显示文本
+
+### Opener 配置
+
+用于自定义打开配置文件方式：
+
+- `opener`: `'' | 'vscode' | 'code'`，可选值，传入不支持的内容或不传递使用默认文本编辑器打开
 
 ## 类型定义
 
