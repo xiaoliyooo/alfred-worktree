@@ -67,7 +67,7 @@ export default {
       return `工作树正在运行 [${branch}] 分支`;
     },
   },
-  opener: "", // 可选值：'vscode' | 'code' | 'cursor' | 'codebuddy' |'buddy' | '‘
+  opener: "", // 可选值：'vscode' | 'code' | 'cursor' | 'codebuddy' |'buddy' | ''
 };
 ```
 
