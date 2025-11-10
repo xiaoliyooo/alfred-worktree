@@ -1,14 +1,25 @@
 {
-  "name": "worktree-manager",
-  "version": "1.0.0",
-  "description": "",
+  "name": "alfred-worktree",
+  "version": "1.4.5",
+  "description": "alfred workflow for dev server and worktree",
   "type": "module",
+  "author": {
+    "name": "xiaoliyooo",
+    "email": "2585960098@qq.com",
+    "url": "https://github.com/xiaoliyooo/alfred-worktree"
+  },
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc -b --force"
+    "build": "tsc -b --force",
+    "postinstall": "alfy-init",
+    "preuninstall": "alfy-cleanup"
   },
+  "files": [
+    "./dist",
+    "./*.png",
+    "info.plist"
+  ],
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "alfy": "^3.0.0",
