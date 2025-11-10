@@ -13,6 +13,7 @@ export const createDefaultConfigStr = (): string => {
     //   name: 'My Project',
     //   root: '/path/to/your/project',
     //   port: '3000',
+    //   cmd: 'npm run https:test',
     //   cmdPath: (worktreeRoot) => worktreeRoot,
     // }
   ]
