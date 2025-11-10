@@ -16,7 +16,8 @@ export const createDefaultConfigStr = (): string => {
     //   cmd: 'npm run https:test',
     //   cmdPath: (worktreeRoot) => worktreeRoot,
     // }
-  ]
+  ],
+  opener: '', // 可选值：'' | 'vscode' | 'code'
 };
 `;
 };
@@ -24,6 +25,7 @@ export const createDefaultConfigStr = (): string => {
 export const createDefaultConfig = (): Config => {
   return {
     projects: [],
+    opener: '',
   };
 };
 export const configDir = path.join(os.homedir(), 'alfred-worktree');

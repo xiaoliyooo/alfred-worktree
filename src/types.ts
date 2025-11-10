@@ -27,7 +27,10 @@ export type CombinedCtx = {
 export interface Config {
   projects?: Project[];
   style?: Style;
+  opener?: Opener;
 }
+
+export type Opener = 'code' | 'vscode' | '';
 
 export interface Args {
   branch: string;

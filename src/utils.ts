@@ -121,15 +121,15 @@ export async function parseWorktreePorcelain(output: string, project: Project) {
 }
 
 export const getCombinedContextList = async () => {
-  const currentProjectConfig = await getConfig();
-  const allProjectsWithWorkTree = (currentProjectConfig.projects || []).map(async project => {
+  const config = await getConfig();
+  const allProjectsWithWorkTree = (config.projects || []).map(async project => {
     return new Promise<CombinedCtx>(async resolve => {
       const gitOutput = (await exec(`cd ${project.root} && git worktree list --porcelain`)).stdout;
       const worktrees = await parseWorktreePorcelain(gitOutput, project);
       resolve({
         project,
         worktrees,
-        style: currentProjectConfig.style || {},
+        style: config.style || {},
       });
     });
   });
