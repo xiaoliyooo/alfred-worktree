@@ -83,7 +83,11 @@ export const killProcessOnPort = async (port: string) => {
 
 export const noop = (path: string) => path;
 
-export async function parseWorktreePorcelain(output: string, project: Project) {
+export async function parseWorktreePorcelain(
+  output: string,
+  project: Project,
+  portCache: Record<string, boolean>
+) {
   const blocks = output.trim().split(/\n\s*\n/);
   const result: Worktree[] = [];
 
@@ -112,7 +116,12 @@ export async function parseWorktreePorcelain(output: string, project: Project) {
       }
     });
 
-    worktree.isRunning = await isProjectRunningOnPort(project, project.port, worktree.root);
+    if (typeof portCache[project.port] === 'undefined') {
+      worktree.isRunning = await isProjectRunningOnPort(project, project.port, worktree.root);
+      portCache[project.port] = worktree.isRunning;
+    } else {
+      worktree.isRunning = portCache[project.port];
+    }
 
     result.push(worktree);
   }
@@ -122,10 +131,11 @@ export async function parseWorktreePorcelain(output: string, project: Project) {
 
 export const getCombinedContextList = async () => {
   const config = await getConfig();
+  const portCache: Record<string, boolean> = {};
   const allProjectsWithWorkTree = (config.projects || []).map(async project => {
     return new Promise<CombinedCtx>(async resolve => {
       const gitOutput = (await exec(`cd ${project.root} && git worktree list --porcelain`)).stdout;
-      const worktrees = await parseWorktreePorcelain(gitOutput, project);
+      const worktrees = await parseWorktreePorcelain(gitOutput, project, portCache);
       resolve({
         project,
         worktrees,
