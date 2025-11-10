@@ -120,7 +120,7 @@ subTitleFormatter?: (project: Project, worktree: Worktree) => string
 
 用于自定义打开配置文件方式：
 
-- `opener`: `'' | 'vscode' | 'code'`，可选值，传入不支持的内容或不传递使用默认文本编辑器打开
+- `opener`: `'vscode' | 'code' | 'cursor' | 'buddy' | 'codebuddy' | ''`，可选值，传入不支持的内容或不传递使用默认文本编辑器打开
 
 ## 类型定义
 

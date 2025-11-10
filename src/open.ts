@@ -6,8 +6,9 @@ import { Opener } from './types.js';
 const exec = util.promisify(_exec);
 const transformOpenCommand = (opener: Opener | undefined, targetPath: string) => {
   if (opener === 'vscode') opener = 'code';
+  if (opener === 'codebuddy') opener = 'buddy';
 
-  if (opener && ['code'].includes(opener)) {
+  if (opener && ['code', 'cursor', 'buddy'].includes(opener)) {
     return `${opener} ${targetPath}`;
   }
 

@@ -17,7 +17,7 @@ export const createDefaultConfigStr = (): string => {
     //   cmdPath: (worktreeRoot) => worktreeRoot,
     // }
   ],
-  opener: '', // 可选值：'' | 'vscode' | 'code'
+  opener: '', // 可选值：'vscode' | 'code' | 'cursor' | 'codebuddy' |'buddy' | '
 };
 `;
 };

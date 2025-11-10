@@ -29,8 +29,11 @@ export interface Config {
   style?: Style;
   opener?: Opener;
 }
+type Vscode = 'code' | 'vscode';
+type CodeBuddy = 'codebuddy' | 'buddy';
+type Cursor = 'cursor';
 
-export type Opener = 'code' | 'vscode' | '';
+export type Opener = Vscode | Cursor | CodeBuddy | '';
 
 export interface Args {
   branch: string;
